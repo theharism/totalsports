@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { IconAlertTriangle } from '@tabler/icons-react'
 import { toast } from '@/hooks/use-toast'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -8,6 +8,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { Category } from '../data/schema'
+import { useMutation,useQueryClient } from '@tanstack/react-query';
+import _ from 'lodash';
+import { MUTATION_DELETE_CATEGORY } from '@/mutations/deleteCategory'
 
 interface Props {
   open: boolean
@@ -16,22 +19,34 @@ interface Props {
 }
 
 export function CategoriesDeleteDialog({ open, onOpenChange, currentRow }: Props) {
+  const queryClient = useQueryClient();
+	const { mutate: deleteCategory, data, isLoading, error } = useMutation({
+    mutationFn: MUTATION_DELETE_CATEGORY,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+    },
+  });
   const [value, setValue] = useState('')
+
+  useEffect(()=>{
+    if(_.get(data,'success',false)){
+      onOpenChange(false)
+      toast({
+        title: 'The following category has been deleted:',
+        description: (
+          <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
+            <code className='text-white'>
+              {JSON.stringify(currentRow, null, 2)}
+            </code>
+          </pre>
+        ),
+      })
+    }
+  },[data])
 
   const handleDelete = () => {
     if (value.trim() !== currentRow.name) return
-
-    onOpenChange(false)
-    toast({
-      title: 'The following category has been deleted:',
-      description: (
-        <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
-          <code className='text-white'>
-            {JSON.stringify(currentRow, null, 2)}
-          </code>
-        </pre>
-      ),
-    })
+    deleteCategory(currentRow._id)
   }
 
   return (
@@ -63,7 +78,7 @@ export function CategoriesDeleteDialog({ open, onOpenChange, currentRow }: Props
             <Input
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              placeholder='Enter category to confirm deletion.'
+              placeholder='Enter category name to confirm deletion.'
             />
           </Label>
 

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 const categorySchema = z.object({
+  _id: z.string().min(1, { message: 'Id is required' }),
   name: z.string().min(1, { message: 'Name is required' }),
   link: z.string().url({ message: 'Link is required and must be a valid URL' }),
   slug: z.string().min(1, { message: 'Slug is required' }),
