@@ -10,8 +10,7 @@ import { ConfirmDialog } from '@/components/confirm-dialog'
 import { Team } from '../data/schema'
 import { useMutation,useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
-import { MUTATION_DELETE_TEAM } from '@/mutations/addTeam'
-
+import { MUTATION_DELETE_TEAM } from '@/mutations/deleteTeam'
 interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
