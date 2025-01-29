@@ -2,7 +2,11 @@ const mongoose = require("mongoose");
 
 const streamSchema = new mongoose.Schema(
   {
-    game: { type: String, required: [true, "Game is required"] },
+    game: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Game",
+      required: [true, "Game is required"],
+    },
     link: {
       type: String,
       required: [true, "Link is required"],
