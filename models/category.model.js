@@ -12,7 +12,7 @@ const categorySchema = new mongoose.Schema({
             message: props => `${props.value} is not a valid URL!`
         }
     },
-    slug: { type: String, required: [true, 'Slug is required'] },
+    slug: { type: String, required: [true, 'Slug is required'],unique: true },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Category', categorySchema);

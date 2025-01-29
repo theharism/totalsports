@@ -13,7 +13,7 @@ const gameSchema = new mongoose.Schema(
       required: [true, "Team two is required"],
     },
     name: { type: String, required: [true, "Game name is required"] },
-    slug: { type: String, required: [true, "Slug is required"] },
+    slug: { type: String, required: [true, "Slug is required"],unique: true  },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
