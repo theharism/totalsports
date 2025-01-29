@@ -40,10 +40,23 @@ const gameSchema = new mongoose.Schema(
       type: String,
       required: [true, "Starting time is required"],
     },
-    ending_date: { type: Date, required: [true, "Ending date is required"] },
-    ending_time: { type: String, required: [true, "Ending time is required"] },
+    ending_date: {
+      type: Date,
+      required: function () {
+        return this.date_range;
+      },
+      default: undefined,
+    },
+    ending_time: {
+      type: String,
+      required: function () {
+        return this.date_range;
+      },
+      default: undefined,
+    },
   },
   { timestamps: true }
 );
 
 module.exports = mongoose.model("Game", gameSchema);
+

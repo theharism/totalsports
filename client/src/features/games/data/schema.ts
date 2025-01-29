@@ -1,32 +1,23 @@
 import { z } from 'zod'
 
-const userStatusSchema = z.union([
-  z.literal('active'),
-  z.literal('inactive'),
-  z.literal('invited'),
-  z.literal('suspended'),
-])
-export type UserStatus = z.infer<typeof userStatusSchema>
-
-const userRoleSchema = z.union([
-  z.literal('superadmin'),
-  z.literal('admin'),
-  z.literal('cashier'),
-  z.literal('manager'),
-])
-
-const userSchema = z.object({
-  id: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
-  username: z.string(),
-  email: z.string(),
-  phoneNumber: z.string(),
-  status: userStatusSchema,
-  role: userRoleSchema,
+const gameSchema = z.object({
+  _id: z.string().min(1, { message: 'Id is required' }),
+  team_one: z.string().min(1, { message: 'Team one is required' }),
+  team_two: z.string().min(1, { message: 'Team two is required' }),
+  category: z.string().min(1, { message: 'Category is required' }),
+  name: z.string().min(1, { message: 'Name is required' }),
+  slug: z.string().min(1, { message: 'Slug is required' }),
+  live_link: z.string().url({ message: 'Live link is required and must be a valid URL' }),
+  important: z.boolean().default(false),
+  link_highlight: z.string().default(''),
+  date_range: z.boolean().default(false),
+  starting_date: z.date().min(new Date(), { message: 'Starting date is required' }),
+  starting_time: z.string().min(1, { message: 'Starting time is required' }),
+  ending_date: z.date(),
+  ending_time: z.string(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 })
-export type User = z.infer<typeof userSchema>
+export type Game = z.infer<typeof gameSchema>
 
-export const userListSchema = z.array(userSchema)
+export const gameListSchema = z.array(gameSchema)
