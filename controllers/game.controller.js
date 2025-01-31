@@ -4,7 +4,11 @@ const logger = require('../services/logger'); // Assuming you have a logger serv
 // Get all games
 exports.getAllGames = async (req, res) => {
     try {
-        const games = await Game.find().populate('team_one team_two category');
+        const games = await Game.find().populate([
+            { path: "team_one", select: "name" },
+            { path: "team_two", select: "name" },
+            { path: "category", select: "name" }
+        ]).lean();                
         logger.info('Fetched all games successfully');
         res.status(200).json({ success: true, data: games });
     } catch (error) {

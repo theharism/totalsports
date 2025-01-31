@@ -40,7 +40,7 @@ export const columns: ColumnDef<Game>[] = [
   {
     accessorKey: 'team_one',
     header: ({ column }) => <DataTableColumnHeader column={column} title='Team one' />,
-    cell: ({ row }) => <LongText className='max-w-36'>{row.getValue('team_one')}</LongText>,
+    cell: ({ row }) => <LongText className='max-w-36'>{row.getValue('team_one')?.name}</LongText>,
     meta: {
       className: cn(
         'drop-shadow-[0_1px_2px_rgb(0_0_0_/_0.1)] dark:drop-shadow-[0_1px_2px_rgb(255_255_255_/_0.1)] lg:drop-shadow-none',
@@ -53,7 +53,7 @@ export const columns: ColumnDef<Game>[] = [
   {
     accessorKey: 'team_two',
     header: ({ column }) => <DataTableColumnHeader column={column} title='Team two' />,
-    cell: ({ row }) => <LongText className='max-w-36'>{row.getValue('team_two')}</LongText>,
+    cell: ({ row }) => <LongText className='max-w-36'>{row.getValue('team_two')?.name}</LongText>,
     meta: {
       className: cn(
         'drop-shadow-[0_1px_2px_rgb(0_0_0_/_0.1)] dark:drop-shadow-[0_1px_2px_rgb(255_255_255_/_0.1)] lg:drop-shadow-none',
@@ -66,7 +66,7 @@ export const columns: ColumnDef<Game>[] = [
   {
     accessorKey: 'category',
     header: ({ column }) => <DataTableColumnHeader column={column} title='Category' />,
-    cell: ({ row }) => <LongText className='max-w-36'>{row.getValue('category')}</LongText>,
+    cell: ({ row }) => <LongText className='max-w-36'>{row.getValue('category')?.name}</LongText>,
     meta: {
       className: cn(
         'drop-shadow-[0_1px_2px_rgb(0_0_0_/_0.1)] dark:drop-shadow-[0_1px_2px_rgb(255_255_255_/_0.1)] lg:drop-shadow-none',
@@ -131,7 +131,7 @@ export const columns: ColumnDef<Game>[] = [
   {
     accessorKey: 'link_highlight',
     header: ({ column }) => <DataTableColumnHeader column={column} title='Link highlight' />,
-    cell: ({ row }) => <LongText className='max-w-36'>{row.getValue('link_highlight')}</LongText>,
+    cell: ({ row }) => <LongText className='max-w-36'>{row.getValue('link_highlight') || '-'}</LongText>,
     meta: {
       className: cn(
         'drop-shadow-[0_1px_2px_rgb(0_0_0_/_0.1)] dark:drop-shadow-[0_1px_2px_rgb(255_255_255_/_0.1)] lg:drop-shadow-none',
@@ -157,7 +157,7 @@ export const columns: ColumnDef<Game>[] = [
   {
     accessorKey: 'starting_date',
     header: ({ column }) => <DataTableColumnHeader column={column} title='Starting date' />,
-    cell: ({ row }) => <LongText className='max-w-36'>{row.getValue('starting_date')?.toLocaleString()}</LongText>,
+    cell: ({ row }) => <LongText className='max-w-36'>{row.getValue('starting_date')?.toLocaleDateString()}</LongText>,
     meta: {
       className: cn(
         'drop-shadow-[0_1px_2px_rgb(0_0_0_/_0.1)] dark:drop-shadow-[0_1px_2px_rgb(255_255_255_/_0.1)] lg:drop-shadow-none',
@@ -170,7 +170,12 @@ export const columns: ColumnDef<Game>[] = [
   {
     accessorKey: 'starting_time',
     header: ({ column }) => <DataTableColumnHeader column={column} title='Starting Time' />,
-    cell: ({ row }) => <LongText className='max-w-36'>{row.getValue('starting_time')?.toLocaleString()}</LongText>,
+    cell: ({ row }) => {
+      const startingTime = row.getValue('starting_time');
+      const formattedTime = new Date(`1970-01-01T${startingTime}`)
+        .toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      return <LongText className='max-w-36'>{formattedTime}</LongText>
+    },
     meta: {
       className: cn(
         'drop-shadow-[0_1px_2px_rgb(0_0_0_/_0.1)] dark:drop-shadow-[0_1px_2px_rgb(255_255_255_/_0.1)] lg:drop-shadow-none',
@@ -183,7 +188,7 @@ export const columns: ColumnDef<Game>[] = [
   {
     accessorKey: 'ending_date',
     header: ({ column }) => <DataTableColumnHeader column={column} title='Ending date' />,
-    cell: ({ row }) => <LongText className='max-w-36'>{row.getValue('ending_date')?.toLocaleString()}</LongText>,
+    cell: ({ row }) => <LongText className='max-w-36'>{row.getValue('ending_date')?.toLocaleDateString() || '-'}</LongText>,
     meta: {
       className: cn(
         'drop-shadow-[0_1px_2px_rgb(0_0_0_/_0.1)] dark:drop-shadow-[0_1px_2px_rgb(255_255_255_/_0.1)] lg:drop-shadow-none',
@@ -196,7 +201,12 @@ export const columns: ColumnDef<Game>[] = [
   {
     accessorKey: 'ending_time',
     header: ({ column }) => <DataTableColumnHeader column={column} title='Ending Time' />,
-    cell: ({ row }) => <LongText className='max-w-36'>{row.getValue('ending_time')}</LongText>,
+    cell: ({ row }) => {
+      const endingTime = row.getValue('ending_time');
+      const formattedTime = endingTime ? new Date(`1970-01-01T${endingTime}`)
+        .toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : '-';
+      return <LongText className='max-w-36'>{formattedTime}</LongText>
+    },
     meta: {
       className: cn(
         'drop-shadow-[0_1px_2px_rgb(0_0_0_/_0.1)] dark:drop-shadow-[0_1px_2px_rgb(255_255_255_/_0.1)] lg:drop-shadow-none',

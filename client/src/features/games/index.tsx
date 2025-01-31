@@ -9,10 +9,20 @@ import { GamesPrimaryButtons } from './components/games-primary-buttons'
 import { GamesTable } from './components/games-table'
 import GamesProvider from './context/games-context'
 import { gameListSchema } from './data/schema'
-import { games } from './data/games'
+import { useQuery } from '@tanstack/react-query'
+import { getAllGames } from '@/queries/getGameTable'
+import _ from 'lodash'
 
 export default function Games() {
-  console.log(games)
+  const { data, error, isLoading } = useQuery({
+    queryKey: ['games'],
+    queryFn: getAllGames,
+  });
+  
+  const games = _.get(data, 'data', []);
+  
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
   // Parse game list
   const gameList = gameListSchema.parse(games)
 

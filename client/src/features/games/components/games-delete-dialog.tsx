@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { IconAlertTriangle } from '@tabler/icons-react'
 import { toast } from '@/hooks/use-toast'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -8,6 +8,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { Game } from '../data/schema'
+import { useMutation,useQueryClient } from '@tanstack/react-query';
+import _ from 'lodash';
+import { MUTATION_DELETE_GAME } from '@/mutations/deleteGame'
 
 interface Props {
   open: boolean
@@ -16,22 +19,34 @@ interface Props {
 }
 
 export function GamesDeleteDialog({ open, onOpenChange, currentRow }: Props) {
+  const queryClient = useQueryClient();
+	const { mutate: deleteGame, data, isLoading, error } = useMutation({
+    mutationFn: MUTATION_DELETE_GAME,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['games'] });
+    },
+  });  
   const [value, setValue] = useState('')
+
+  useEffect(()=>{
+    if(_.get(data,'success',false)){
+      onOpenChange(false)
+      toast({
+        title: 'The following game has been deleted:',
+        description: (
+          <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
+            <code className='text-white'>
+              {JSON.stringify(data, null, 2)}
+            </code>
+          </pre>
+        ),
+      })
+    }
+  },[data])
 
   const handleDelete = () => {
     if (value.trim() !== currentRow.name) return
-
-    onOpenChange(false)
-    toast({
-      title: 'The following game has been deleted:',
-      description: (
-        <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
-          <code className='text-white'>
-            {JSON.stringify(currentRow, null, 2)}
-          </code>
-        </pre>
-      ),
-    })
+    deleteGame(currentRow._id)
   }
 
   return (
@@ -55,9 +70,7 @@ export function GamesDeleteDialog({ open, onOpenChange, currentRow }: Props) {
             Are you sure you want to delete{' '}
             <span className='font-bold'>{currentRow.name}</span>?
             <br />
-            This action will permanently remove the game
-            <span className='font-bold'>{currentRow.name}</span>
-            from the system. This cannot be undone.
+            This action will permanently remove the game from the system. This cannot be undone.
           </p>
 
           <Label className='my-2'>
