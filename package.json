@@ -10,7 +10,8 @@
     "gzip": "gzip -r -k client/dist",
     "dev": "cross-env concurrently \"npm run server\" \"npm run client\" ",
     "analyze": "npm run analyze --prefix client",
-    "vercel-build": "npm run build"
+    "vercel-build": "npm run build",
+    "preinstall": "npm install --legacy-peer-deps"
   },
   "keywords": [],
   "author": "",

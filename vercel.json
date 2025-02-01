@@ -22,6 +22,6 @@
       }
     ],
     "installCommand": "npm install && npm install --legacy-peer-deps --prefix client",
-    "buildCommand": "npm run build --prefix client"
+    "buildCommand": "npm install --legacy-peer-deps && npm run build"
   }
   
