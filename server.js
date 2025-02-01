@@ -26,6 +26,28 @@ const uploads = path.join(__dirname, './uploads');
 
 app.use('/uploads', express.static(uploads));
 
+if (keys.env === 'production') {
+  app.get('*.js', function (req, res, next) {
+    req.url = req.url + '.gz';
+    res.set('Content-Encoding', 'gzip');
+    res.set('Content-Type', 'text/javascript');
+    next();
+  });
+
+  app.get('*.css', function (req, res, next) {
+    req.url = req.url + '.gz';
+    res.set('Content-Encoding', 'gzip');
+    res.set('Content-Type', 'text/css');
+    next();
+  });
+
+  app.use(express.static('client/dist'));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'client', 'dist', 'index.html'));
+  });
+}
+
 app.listen(keys.port, () => {
   logger.info(logger.logTypes.SERVER,{message:`Server is running on port ${keys.port} - ${keys.env} Level`});
 });
