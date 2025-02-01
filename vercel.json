@@ -21,7 +21,7 @@
         "dest": "/client/dist/index.html"
       }
     ],
-    "installCommand": "npm install --legacy-peer-deps --prefix client",
+    "installCommand": "npm install && npm install --legacy-peer-deps --prefix client",
     "buildCommand": "npm run build --prefix client"
   }
   
