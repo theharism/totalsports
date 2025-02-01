@@ -23,115 +23,91 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { PasswordInput } from '@/components/password-input'
 import { SelectDropdown } from '@/components/select-dropdown'
-import { userTypes } from '../data/data'
-import { User } from '../data/schema'
+import { Stream } from '../data/schema'
+import { useQuery,useQueryClient,useMutation } from '@tanstack/react-query';
+import { getAllGames } from '@/queries/getGameTable';
+import _ from 'lodash';
+import { useEffect } from 'react'
+import { MUTATION_ADD_STREAM } from '@/mutations/addStream'
 
 const formSchema = z
   .object({
-    firstName: z.string().min(1, { message: 'First Name is required.' }),
-    lastName: z.string().min(1, { message: 'Last Name is required.' }),
-    username: z.string().min(1, { message: 'Username is required.' }),
-    phoneNumber: z.string().min(1, { message: 'Phone number is required.' }),
-    email: z
-      .string()
-      .min(1, { message: 'Email is required.' })
-      .email({ message: 'Email is invalid.' }),
-    password: z.string().transform((pwd) => pwd.trim()),
-    role: z.string().min(1, { message: 'Role is required.' }),
-    confirmPassword: z.string().transform((pwd) => pwd.trim()),
-    isEdit: z.boolean(),
+    game: z.string().min(1, { message: 'Id is required' }),
+    link: z.string().url({ message: 'Link is required and must be a valid URL' }),
+    channel: z.string().min(1, { message: 'Channel is required' }),
+    ads: z.coerce.number().positive().int().min(0, { message: 'Ads cannot be negative' }),
+    language: z.string().min(1, { message: 'Language is required' }),
+    quality: z.enum(['HD', 'SD']).default('HD'),
+    mobile: z.enum(['Yes', 'No']).default('No'),
+    nsfw: z.enum(['Yes', 'No']).default('No'),
+    ad_block: z.enum(['Yes', 'No']).default('No'),
   })
-  .superRefine(({ isEdit, password, confirmPassword }, ctx) => {
-    if (!isEdit || (isEdit && password !== '')) {
-      if (password === '') {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Password is required.',
-          path: ['password'],
-        })
-      }
-
-      if (password.length < 8) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Password must be at least 8 characters long.',
-          path: ['password'],
-        })
-      }
-
-      if (!password.match(/[a-z]/)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Password must contain at least one lowercase letter.',
-          path: ['password'],
-        })
-      }
-
-      if (!password.match(/\d/)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Password must contain at least one number.',
-          path: ['password'],
-        })
-      }
-
-      if (password !== confirmPassword) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Passwords don't match.",
-          path: ['confirmPassword'],
-        })
-      }
-    }
-  })
-type UserForm = z.infer<typeof formSchema>
+type StreamForm = z.infer<typeof formSchema>
 
 interface Props {
-  currentRow?: User
+  currentRow?: Stream
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
-export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
+export function StreamsActionDialog({ currentRow, open, onOpenChange }: Props) {
   const isEdit = !!currentRow
-  const form = useForm<UserForm>({
+  const queryClient = useQueryClient();
+	const { mutate: addStream, data, isLoading, error } = useMutation({
+    mutationFn: MUTATION_ADD_STREAM,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['streams'] });
+    },
+  });  
+  const results = useQuery({
+    queryKey: ['games'],
+    queryFn: getAllGames,
+  });
+  const games = _.get(results.data,"data",[]);
+  const gamesError = results.error;
+  const gamesLoading = results.isLoading;
+
+  // if (gamesLoading) return <div>Loading...</div>;
+  if (gamesError) return <div>Error: {gamesError.message}</div>;
+
+  const form = useForm<StreamForm>({
     resolver: zodResolver(formSchema),
     defaultValues: isEdit
       ? {
           ...currentRow,
-          password: '',
-          confirmPassword: '',
-          isEdit,
         }
       : {
-          firstName: '',
-          lastName: '',
-          username: '',
-          email: '',
-          role: '',
-          phoneNumber: '',
-          password: '',
-          confirmPassword: '',
-          isEdit,
+          game: '',
+          link: '',
+          channel: '',
+          ads: 0,
+          language: '',
+          quality: 'HD',
+          mobile: 'No',
+          nsfw: 'No',
+          ad_block: 'No',
         },
   })
 
-  const onSubmit = (values: UserForm) => {
-    form.reset()
-    toast({
-      title: 'You submitted the following values:',
-      description: (
-        <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
-          <code className='text-white'>{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      ),
-    })
-    onOpenChange(false)
-  }
+  useEffect(()=>{
+    if(_.get(data,'data',false)){
+      form.reset()
+      toast({
+        title: 'You submitted the following values:',
+        description: (
+          <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
+            <code className='text-white'>{JSON.stringify(data, null, 2)}</code>
+          </pre>
+        ),
+      })
+      onOpenChange(false)
+    }
+  },[data])
 
-  const isPasswordTouched = !!form.formState.dirtyFields.password
+  const onSubmit = (values: StreamForm) => {
+    addStream(values);
+  }
 
   return (
     <Dialog
@@ -143,132 +119,35 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
     >
       <DialogContent className='sm:max-w-lg'>
         <DialogHeader className='text-left'>
-          <DialogTitle>{isEdit ? 'Edit User' : 'Add New User'}</DialogTitle>
+          <DialogTitle>{isEdit ? 'Edit Stream' : 'Add New Stream'}</DialogTitle>
           <DialogDescription>
-            {isEdit ? 'Update the user here. ' : 'Create new user here. '}
+            {isEdit ? 'Update the stream here. ' : 'Create new stream here. '}
             Click save when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className='h-[26.25rem] w-full pr-4 -mr-4 py-1'>
           <Form {...form}>
             <form
-              id='user-form'
+              id='stream-form'
               onSubmit={form.handleSubmit(onSubmit)}
               className='space-y-4 p-0.5'
             >
               <FormField
                 control={form.control}
-                name='firstName'
+                name='game'
                 render={({ field }) => (
                   <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
                     <FormLabel className='col-span-2 text-right'>
-                      First Name
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder='John'
-                        className='col-span-4'
-                        autoComplete='off'
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage className='col-span-4 col-start-3' />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='lastName'
-                render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
-                    <FormLabel className='col-span-2 text-right'>
-                      Last Name
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder='Doe'
-                        className='col-span-4'
-                        autoComplete='off'
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage className='col-span-4 col-start-3' />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='username'
-                render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
-                    <FormLabel className='col-span-2 text-right'>
-                      Username
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder='john_doe'
-                        className='col-span-4'
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage className='col-span-4 col-start-3' />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='email'
-                render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
-                    <FormLabel className='col-span-2 text-right'>
-                      Email
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder='john.doe@gmail.com'
-                        className='col-span-4'
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage className='col-span-4 col-start-3' />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='phoneNumber'
-                render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
-                    <FormLabel className='col-span-2 text-right'>
-                      Phone Number
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder='+123456789'
-                        className='col-span-4'
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage className='col-span-4 col-start-3' />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='role'
-                render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
-                    <FormLabel className='col-span-2 text-right'>
-                      Role
+                      Game
                     </FormLabel>
                     <SelectDropdown
                       defaultValue={field.value}
                       onValueChange={field.onChange}
-                      placeholder='Select a role'
+                      placeholder='Select a game'
                       className='col-span-4'
-                      items={userTypes.map(({ label, value }) => ({
-                        label,
-                        value,
+                      items={games?.map(({ name,starting_time,starting_date, _id }: { name: string;starting_time:string;starting_date:string;_id: string }) => ({
+                        label: "(" + new Date(starting_date)?.toLocaleDateString() + ' ' + starting_time + ") " + name,
+                        value: _id,
                       }))}
                     />
                     <FormMessage className='col-span-4 col-start-3' />
@@ -277,15 +156,15 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
               />
               <FormField
                 control={form.control}
-                name='password'
+                name='link'
                 render={({ field }) => (
                   <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
                     <FormLabel className='col-span-2 text-right'>
-                      Password
+                      Live link
                     </FormLabel>
                     <FormControl>
-                      <PasswordInput
-                        placeholder='e.g., S3cur3P@ssw0rd'
+                      <Input
+                        placeholder='e.g., https://example.com/stream'
                         className='col-span-4'
                         {...field}
                       />
@@ -296,16 +175,15 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
               />
               <FormField
                 control={form.control}
-                name='confirmPassword'
+                name='channel'
                 render={({ field }) => (
                   <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
                     <FormLabel className='col-span-2 text-right'>
-                      Confirm Password
+                      Channel
                     </FormLabel>
                     <FormControl>
-                      <PasswordInput
-                        disabled={!isPasswordTouched}
-                        placeholder='e.g., S3cur3P@ssw0rd'
+                      <Input
+                        placeholder='e.g., channel'
                         className='col-span-4'
                         {...field}
                       />
@@ -314,11 +192,138 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name='ads'
+                render={({ field }) => (
+                  <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
+                    <FormLabel className='col-span-2 text-right'>
+                      Ads
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type='number'
+                        placeholder='e.g., 3'
+                        className='col-span-4'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className='col-span-4 col-start-3' />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='language'
+                render={({ field }) => (
+                  <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
+                    <FormLabel className='col-span-2 text-right'>
+                      Language
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder='e.g., English'
+                        className='col-span-4'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className='col-span-4 col-start-3' />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='quality'
+                render={({ field }) => (
+                  <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
+                    <FormLabel className='col-span-2 text-right'>
+                      Quality
+                    </FormLabel>
+                    <SelectDropdown
+                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                      placeholder='Select a quality'
+                      className='col-span-4'
+                      items={[{name:"HD",value:"HD"},{name:"SD",value:"SD"}]?.map(({ name,value }: { name: string;value: string; }) => ({
+                        label: name,
+                        value: value,
+                      }))}
+                    />
+                    <FormMessage className='col-span-4 col-start-3' />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='mobile'
+                render={({ field }) => (
+                  <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
+                    <FormLabel className='col-span-2 text-right'>
+                      Mobile
+                    </FormLabel>
+                    <SelectDropdown
+                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                      placeholder='Select option for mobile'
+                      className='col-span-4'
+                      items={[{name:"Yes",value:"Yes"},{name:"No",value:"No"}]?.map(({ name,value }: { name: string;value: string; }) => ({
+                        label: name,
+                        value: value,
+                      }))}
+                    />
+                    <FormMessage className='col-span-4 col-start-3' />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='ad_block'
+                render={({ field }) => (
+                  <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
+                    <FormLabel className='col-span-2 text-right'>
+                      Mobile
+                    </FormLabel>
+                    <SelectDropdown
+                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                      placeholder='Select option for ad block'
+                      className='col-span-4'
+                      items={[{name:"Yes",value:"Yes"},{name:"No",value:"No"}]?.map(({ name,value }: { name: string;value: string; }) => ({
+                        label: name,
+                        value: value,
+                      }))}
+                    />
+                    <FormMessage className='col-span-4 col-start-3' />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='nsfw'
+                render={({ field }) => (
+                  <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
+                    <FormLabel className='col-span-2 text-right'>
+                      NSFW
+                    </FormLabel>
+                    <SelectDropdown
+                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                      placeholder='Select option for nsfw'
+                      className='col-span-4'
+                      items={[{name:"Yes",value:"Yes"},{name:"No",value:"No"}]?.map(({ name,value }: { name: string;value: string; }) => ({
+                        label: name,
+                        value: value,
+                      }))}
+                    />
+                    <FormMessage className='col-span-4 col-start-3' />
+                  </FormItem>
+                )}
+              />
             </form>
           </Form>
         </ScrollArea>
         <DialogFooter>
-          <Button type='submit' form='user-form'>
+          <Button type='submit' form='stream-form'>
             Save changes
           </Button>
         </DialogFooter>

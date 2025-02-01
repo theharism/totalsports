@@ -1,32 +1,27 @@
 import { z } from 'zod'
 
-const userStatusSchema = z.union([
-  z.literal('active'),
-  z.literal('inactive'),
-  z.literal('invited'),
-  z.literal('suspended'),
-])
-export type UserStatus = z.infer<typeof userStatusSchema>
+const populatedFieldSchema = z.object({
+  _id: z.string().min(1, { message: 'Id is required' }),
+  name: z.string().min(1, { message: 'Name is required' }),
+  starting_date: z.coerce.date().min(new Date(), { message: 'Starting date is required' }),
+  starting_time: z.string().min(1, { message: 'Starting time is required' }),
+});
 
-const userRoleSchema = z.union([
-  z.literal('superadmin'),
-  z.literal('admin'),
-  z.literal('cashier'),
-  z.literal('manager'),
-])
+export type PopulatedField = z.infer<typeof populatedFieldSchema>
 
-const userSchema = z.object({
-  id: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
-  username: z.string(),
-  email: z.string(),
-  phoneNumber: z.string(),
-  status: userStatusSchema,
-  role: userRoleSchema,
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
-})
-export type User = z.infer<typeof userSchema>
+const streamSchema = z.object({
+  _id: z.string().min(1, { message: 'Id is required' }),
+  game: populatedFieldSchema,
+  link: z.string().url({ message: 'Link is required and must be a valid URL' }),
+  channel: z.string().min(1, { message: 'Channel is required' }),
+  ads: z.number().positive().int().min(0, { message: 'Ads cannot be negative' }),
+  language: z.string().min(1, { message: 'Language is required' }),
+  quality: z.enum(['HD', 'SD']).default('HD'),
+  mobile: z.enum(['Yes', 'No']).default('No'),
+  nsfw: z.enum(['Yes', 'No']).default('No'),
+  ad_block: z.enum(['Yes', 'No']).default('No'),
+});
 
-export const userListSchema = z.array(userSchema)
+export type Stream = z.infer<typeof streamSchema>;
+
+export const streamListSchema = z.array(streamSchema);

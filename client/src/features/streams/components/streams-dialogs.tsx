@@ -1,28 +1,21 @@
-import { useUsers } from '../context/users-context'
-import { UsersActionDialog } from './users-action-dialog'
-import { UsersDeleteDialog } from './users-delete-dialog'
-import { UsersInviteDialog } from './users-invite-dialog'
+import { useStreams } from '../context/streams-context'
+import { StreamsActionDialog } from './streams-action-dialog'
+import { StreamsDeleteDialog } from './streams-delete-dialog'
 
-export function UsersDialogs() {
-  const { open, setOpen, currentRow, setCurrentRow } = useUsers()
+export function StreamsDialogs() {
+  const { open, setOpen, currentRow, setCurrentRow } = useStreams()
   return (
     <>
-      <UsersActionDialog
-        key='user-add'
+      <StreamsActionDialog
+        key='stream-add'
         open={open === 'add'}
         onOpenChange={() => setOpen('add')}
       />
 
-      <UsersInviteDialog
-        key='user-invite'
-        open={open === 'invite'}
-        onOpenChange={() => setOpen('invite')}
-      />
-
       {currentRow && (
         <>
-          <UsersActionDialog
-            key={`user-edit-${currentRow.id}`}
+          <StreamsActionDialog
+            key={`stream-edit-${currentRow.id}`}
             open={open === 'edit'}
             onOpenChange={() => {
               setOpen('edit')
@@ -33,8 +26,8 @@ export function UsersDialogs() {
             currentRow={currentRow}
           />
 
-          <UsersDeleteDialog
-            key={`user-delete-${currentRow.id}`}
+          <StreamsDeleteDialog
+            key={`stream-delete-${currentRow.id}`}
             open={open === 'delete'}
             onOpenChange={() => {
               setOpen('delete')

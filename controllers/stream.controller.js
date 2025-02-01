@@ -4,7 +4,7 @@ const logger = require('../services/logger'); // Assuming you have a logger serv
 // Get all streams
 exports.getAllStreams = async (req, res) => {
     try {
-        const streams = await Stream.find();
+        const streams = await Stream.find().populate([{path:'game',select:'name starting_date starting_time'}]).lean();
         logger.info('Fetched all streams successfully');
         res.status(200).json({ success: true, data: streams });
     } catch (error) {
