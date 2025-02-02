@@ -6,8 +6,8 @@
     "start": "cross-env NODE_ENV=production node server.js",
     "server": "cross-env NODE_ENV=development nodemon server.js",
     "client": "npm run dev --prefix client",
-    "build": "cross-env npm run build --prefix client && npm run gzip",
-    "gzip": "gzip -r -k client/build",
+    "build": "cross-env npm install --legacy-peer-deps --prefix client && npm run build --prefix client",
+    "gzip": "gzip -r -k client/dist",
     "dev": "cross-env concurrently \"npm run server\" \"npm run client\" ",
     "analyze": "npm run analyze --prefix client"
   },
