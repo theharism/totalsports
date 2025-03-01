@@ -45,7 +45,7 @@ export function GamesDeleteDialog({ open, onOpenChange, currentRow }: Props) {
   },[data])
 
   const handleDelete = () => {
-    if (value.trim() !== currentRow.name) return
+    if (value.trim() !== currentRow.name.trim()) return
     deleteGame(currentRow._id)
   }
 
@@ -54,7 +54,7 @@ export function GamesDeleteDialog({ open, onOpenChange, currentRow }: Props) {
       open={open}
       onOpenChange={onOpenChange}
       handleConfirm={handleDelete}
-      disabled={value.trim() !== currentRow.name}
+      disabled={value.trim() !== currentRow.name.trim()}
       title={
         <span className='text-destructive'>
           <IconAlertTriangle

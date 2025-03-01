@@ -10,7 +10,6 @@ export const games = Array.from({ length: 20 }, () => {
     category: faker.string.uuid(),
     live_link: faker.internet.url(),
     important: faker.datatype.boolean(),
-    link_highlight: faker.commerce.productName(),
     date_range: faker.datatype.boolean(),
     starting_date: faker.date.future(),
     starting_time: faker.date.future().toLocaleTimeString(),

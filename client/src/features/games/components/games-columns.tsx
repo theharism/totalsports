@@ -129,19 +129,6 @@ export const columns: ColumnDef<Game>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'link_highlight',
-    header: ({ column }) => <DataTableColumnHeader column={column} title='Link highlight' />,
-    cell: ({ row }) => <LongText className='max-w-36'>{row.getValue('link_highlight') || '-'}</LongText>,
-    meta: {
-      className: cn(
-        'drop-shadow-[0_1px_2px_rgb(0_0_0_/_0.1)] dark:drop-shadow-[0_1px_2px_rgb(255_255_255_/_0.1)] lg:drop-shadow-none',
-        'bg-background transition-colors duration-200 group-hover/row:bg-muted group-data-[state=selected]/row:bg-muted',
-        'sticky left-6 md:table-cell'
-      ),
-    },
-    enableHiding: false,
-  },
-  {
     accessorKey: 'date_range',
     header: ({ column }) => <DataTableColumnHeader column={column} title='Date range' />,
     cell: ({ row }) => <Checkbox checked={row.getValue('date_range')} disabled />,

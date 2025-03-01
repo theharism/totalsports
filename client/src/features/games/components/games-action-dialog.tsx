@@ -41,7 +41,6 @@ const formSchema = z
     slug: z.string().min(1, { message: 'Slug is required' }),
     live_link: z.string().url({ message: 'Live link is required and must be a valid URL' }),
     important: z.boolean().default(false),
-    link_highlight: z.string().default(''),
     date_range: z.boolean().default(false),
     starting_date: z.date().min(new Date(), { message: 'Starting date is required' }),
     starting_time: z.string().min(1, { message: 'Starting time is required' }),
@@ -115,7 +114,6 @@ export function GamesActionDialog({ currentRow, open, onOpenChange }: Props) {
           slug: '',
           live_link: '',
           important: false,
-          link_highlight: '',
           date_range: false,
           starting_date: new Date(),
           starting_time: '',
@@ -302,25 +300,6 @@ export function GamesActionDialog({ currentRow, open, onOpenChange }: Props) {
                         type='checkbox'
                         className='col-span-4'
                         onChange={(e) => field.onChange(e.target.checked)}
-                      />
-                    </FormControl>
-                    <FormMessage className='col-span-4 col-start-3' />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='link_highlight'
-                render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
-                    <FormLabel className='col-span-2 text-right'>
-                      Live Highlight
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder='e.g., https://example.com/stream'
-                        className='col-span-4'
-                        {...field}
                       />
                     </FormControl>
                     <FormMessage className='col-span-4 col-start-3' />
