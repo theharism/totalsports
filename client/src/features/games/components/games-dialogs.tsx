@@ -1,9 +1,10 @@
 import { useGames } from '../context/games-context'
 import { GamesActionDialog } from './games-action-dialog'
+import { GamesBulkDeleteDialog } from './games-bulk-delete-dialog'
 import { GamesDeleteDialog } from './games-delete-dialog'
 
 export function GamesDialogs() {
-  const { open, setOpen, currentRow, setCurrentRow } = useGames()
+  const { open, setOpen, currentRow, setCurrentRow, currentRows, setCurrentRows } = useGames()
   return (
     <>
       <GamesActionDialog
@@ -15,7 +16,7 @@ export function GamesDialogs() {
       {currentRow && (
         <>
           <GamesActionDialog
-            key={`game-edit-${currentRow.id}`}
+            key={`game-edit-${currentRow._id}`}
             open={open === 'edit'}
             onOpenChange={() => {
               setOpen('edit')
@@ -27,7 +28,7 @@ export function GamesDialogs() {
           />
 
           <GamesDeleteDialog
-            key={`game-delete-${currentRow.id}`}
+            key={`game-delete-${currentRow._id}`}
             open={open === 'delete'}
             onOpenChange={() => {
               setOpen('delete')
@@ -36,6 +37,21 @@ export function GamesDialogs() {
               }, 500)
             }}
             currentRow={currentRow}
+          />
+        </>
+      )}
+       {currentRows && (
+        <>
+          <GamesBulkDeleteDialog
+            key={'bulk-delete'}
+            open={open === 'bulk-delete'}
+            onOpenChange={() => {
+              setOpen('bulk-delete')
+              setTimeout(() => {
+                setCurrentRows(null)
+              }, 500)
+            }}
+            currentRows={currentRows}
           />
         </>
       )}
