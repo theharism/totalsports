@@ -1,9 +1,10 @@
 import { useCategories } from '../context/categories-context'
 import { CategoriesActionDialog } from './categories-action-dialog'
+import { CategoriesBulkDeleteDialog } from './categories-bulk-delete-dialog'
 import { CategoriesDeleteDialog } from './categories-delete-dialog'
 
 export function CategoriesDialogs() {
-  const { open, setOpen, currentRow, setCurrentRow } = useCategories()
+  const { open, setOpen, currentRow, setCurrentRow, currentRows, setCurrentRows } = useCategories()
   return (
     <>
       <CategoriesActionDialog
@@ -36,6 +37,22 @@ export function CategoriesDialogs() {
               }, 500)
             }}
             currentRow={currentRow}
+          />
+        </>
+      )}
+
+      {currentRows && (
+        <>
+          <CategoriesBulkDeleteDialog
+            key={'bulk-delete'}
+            open={open === 'bulk-delete'}
+            onOpenChange={() => {
+              setOpen('bulk-delete')
+              setTimeout(() => {
+                setCurrentRows(null)
+              }, 500)
+            }}
+            currentRows={currentRows}
           />
         </>
       )}

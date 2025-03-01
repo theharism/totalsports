@@ -2,13 +2,15 @@ import React, { useState } from 'react'
 import useDialogState from '@/hooks/use-dialog-state'
 import { Category } from '../data/schema'
 
-type CategoriesDialogType = 'add' | 'edit' | 'delete'
+type CategoriesDialogType = 'add' | 'edit' | 'delete' | 'bulk-delete'
 
 interface CategoriesContextType {
   open: CategoriesDialogType | null
   setOpen: (str: CategoriesDialogType | null) => void
   currentRow: Category | null
   setCurrentRow: React.Dispatch<React.SetStateAction<Category | null>>
+  currentRows: Category[] | null
+  setCurrentRows: React.Dispatch<React.SetStateAction<Category[] | null>>
 }
 
 const CategoriesContext = React.createContext<CategoriesContextType | null>(null)
@@ -19,10 +21,11 @@ interface Props {
 
 export default function CategoriesProvider({ children }: Props) {
   const [open, setOpen] = useDialogState<CategoriesDialogType>(null)
-  const [currentRow, setCurrentRow] = useState<Category | null>(null)
+  const [currentRow, setCurrentRow] = useState<Category | null>(null) 
+  const [currentRows, setCurrentRows] = useState<Category[] | null>(null)
 
   return (
-    <CategoriesContext value={{ open, setOpen, currentRow, setCurrentRow }}>
+    <CategoriesContext value={{ open, setOpen, currentRow, setCurrentRow, currentRows, setCurrentRows }}>
       {children}
     </CategoriesContext>
   )
