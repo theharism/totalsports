@@ -9,6 +9,8 @@
     "build": "cross-env npm install --legacy-peer-deps --prefix client && npm run build --prefix client",
     "gzip": "gzip -r -k client/dist",
     "dev": "cross-env concurrently \"npm run server\" \"npm run client\" ",
+    "staging:server": "cross-env NODE_ENV=staging nodemon server.js",
+    "staging": "cross-env concurrently \"npm run staging:server\" \"npm run client\" ",
     "analyze": "npm run analyze --prefix client"
   },
   "keywords": [],

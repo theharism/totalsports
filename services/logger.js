@@ -37,7 +37,7 @@ var errorLogs = new winston.transports.DailyRotateFile({
 
 var transports = [infoLogs, errorLogs];
 
-if (keys.env === 'development') {
+if (keys.env === 'development' || keys.env === 'staging') {
   transports.push(
     new winston.transports.Console({
       level: 'info',
