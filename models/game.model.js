@@ -54,6 +54,11 @@ const gameSchema = new mongoose.Schema(
       },
       default: undefined,
     },
+    status: {
+      type: String,
+      enum: ["Upcoming", "Live", "Finished"],
+      default: "Upcoming",
+    },
   },
   { timestamps: true }
 );

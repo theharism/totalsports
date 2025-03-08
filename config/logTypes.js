@@ -8,4 +8,5 @@ module.exports = {
     SERVER:"Server Operations",
     SWAGGER:"Swagger Operations",
     ROUTE:"Route",
+    CRONJOB:"Cronjob",
   };
