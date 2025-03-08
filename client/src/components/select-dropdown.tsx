@@ -8,13 +8,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { useState } from 'react'
+import { Input } from './ui/input'
 
 interface SelectDropdownProps {
   onValueChange?: (value: string) => void
-  defaultValue: string | undefined
+  defaultValue: string | undefined,
+  defaultLabel?: string | undefined,
   placeholder?: string
   isPending?: boolean
-  items: { label: string; value: string }[] | undefined
+  items: { label: string; value: string }[]
   disabled?: boolean
   className?: string
   isControlled?: boolean
@@ -33,6 +36,10 @@ export function SelectDropdown({
   const defaultState = isControlled
     ? { value: defaultValue, onValueChange }
     : { defaultValue, onValueChange }
+  const [search, setSearch] = useState('')
+  const filteredItems = items?.filter(item =>
+    item.label.toLowerCase().includes(search.toLowerCase())
+  )
   return (
     <Select {...defaultState}>
       <FormControl>
@@ -50,12 +57,27 @@ export function SelectDropdown({
             </div>
           </SelectItem>
         ) : (
-          items?.map(({ label, value }) => (
+          <>
+          <div className="p-2">
+          <Input
+            autoFocus
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search..."
+            className="w-full"
+          />
+        </div>
+          {filteredItems?.length > 0 ? filteredItems?.map(({ label, value }) => (
             <SelectItem key={value} value={value}>
               {label}
             </SelectItem>
-          ))
-        )}
+            )) : (
+              <div className="p-2 text-center text-sm text-gray-500">
+                No results found
+              </div>
+            )}
+            </>
+          )}
       </SelectContent>
     </Select>
   )
