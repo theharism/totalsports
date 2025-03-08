@@ -3,7 +3,7 @@ import { z } from 'zod'
 const populatedFieldSchema = z.object({
   _id: z.string().min(1, { message: 'Id is required' }),
   name: z.string().min(1, { message: 'Name is required' }),
-  starting_date: z.coerce.date().min(new Date(), { message: 'Starting date is required' }),
+  starting_date: z.string().min(1, { message: 'Starting date is required' }),
   starting_time: z.string().min(1, { message: 'Starting time is required' }),
 });
 

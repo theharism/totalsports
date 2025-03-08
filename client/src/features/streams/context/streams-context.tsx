@@ -2,13 +2,15 @@ import React, { useState } from 'react'
 import useDialogState from '@/hooks/use-dialog-state'
 import { Stream } from '../data/schema'
 
-type StreamsDialogType = 'invite' | 'add' | 'edit' | 'delete'
+type StreamsDialogType = 'invite' | 'add' | 'edit' | 'delete' | 'bulk-delete'
 
 interface StreamsContextType {
   open: StreamsDialogType | null
   setOpen: (str: StreamsDialogType | null) => void
   currentRow: Stream | null
   setCurrentRow: React.Dispatch<React.SetStateAction<Stream | null>>
+  currentRows: Stream[] | null
+  setCurrentRows: React.Dispatch<React.SetStateAction<Stream[] | null>>
 }
 
 const StreamsContext = React.createContext<StreamsContextType | null>(null)
@@ -20,9 +22,10 @@ interface Props {
 export default function StreamsProvider({ children }: Props) {
   const [open, setOpen] = useDialogState<StreamsDialogType>(null)
   const [currentRow, setCurrentRow] = useState<Stream | null>(null)
+  const [currentRows, setCurrentRows] = useState<Stream[] | null>(null)
 
   return (
-    <StreamsContext value={{ open, setOpen, currentRow, setCurrentRow }}>
+    <StreamsContext value={{ open, setOpen, currentRow, setCurrentRow,currentRows, setCurrentRows }}>
       {children}
     </StreamsContext>
   )
