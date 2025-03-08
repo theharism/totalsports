@@ -23,6 +23,7 @@ const gameSchema = z.object({
   ending_time: z.string().optional(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
+  status: z.enum(['Upcoming', 'Live', 'Finished']).default('Upcoming'),
 });
 
 export type Game = z.infer<typeof gameSchema>;
