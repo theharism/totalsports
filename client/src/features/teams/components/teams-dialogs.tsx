@@ -1,9 +1,10 @@
 import { useTeams } from '../context/teams-context'
 import { TeamsActionDialog } from './teams-action-dialog'
 import { TeamsDeleteDialog } from './teams-delete-dialog'
+import { TeamsBulkDeleteDialog } from './teams-bulk-delete-dialog'
 
 export function TeamsDialogs() {
-  const { open, setOpen, currentRow, setCurrentRow } = useTeams()
+  const { open, setOpen, currentRow, setCurrentRow, currentRows, setCurrentRows } = useTeams()
   return (
     <>
       <TeamsActionDialog
@@ -15,7 +16,7 @@ export function TeamsDialogs() {
       {currentRow && (
         <>
           <TeamsActionDialog
-            key={`team-edit-${currentRow.id}`}
+            key={`team-edit-${currentRow._id}`}
             open={open === 'edit'}
             onOpenChange={() => {
               setOpen('edit')
@@ -27,7 +28,7 @@ export function TeamsDialogs() {
           />
 
           <TeamsDeleteDialog
-            key={`team-delete-${currentRow.id}`}
+            key={`team-delete-${currentRow._id}`}
             open={open === 'delete'}
             onOpenChange={() => {
               setOpen('delete')
@@ -36,6 +37,21 @@ export function TeamsDialogs() {
               }, 500)
             }}
             currentRow={currentRow}
+          />
+        </>
+      )}
+      {currentRows && (
+        <>
+          <TeamsBulkDeleteDialog
+            key={'bulk-delete'}
+            open={open === 'bulk-delete'}
+            onOpenChange={() => {
+              setOpen('bulk-delete')
+              setTimeout(() => {
+                setCurrentRows(null)
+              }, 500)
+            }}
+            currentRows={currentRows}
           />
         </>
       )}
