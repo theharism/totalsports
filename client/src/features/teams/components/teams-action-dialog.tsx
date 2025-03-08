@@ -28,6 +28,7 @@ import { MUTATION_ADD_TEAM } from '@/mutations/addTeam'
 import { useMutation,useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react'
 import _ from 'lodash';
+import generateSlug from '@/utils/generate-slug'
 
 const formSchema = z
   .object({
@@ -64,6 +65,16 @@ export function TeamsActionDialog({ currentRow, open, onOpenChange }: Props) {
           slug: '',
         },
   })
+  const nameValue = form.watch('name')
+
+  useEffect(()=>{
+    if (nameValue) {
+      form.setValue('slug', generateSlug(nameValue,false), { shouldValidate: true })
+    }
+    else{
+      form.setValue('slug', '')
+    }
+  },[nameValue,form])
 
   useEffect(()=>{
     if(_.get(data,'data',false)){
@@ -170,6 +181,7 @@ export function TeamsActionDialog({ currentRow, open, onOpenChange }: Props) {
               <FormField
                 control={form.control}
                 name='slug'
+                disabled
                 render={({ field }) => (
                   <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
                     <FormLabel className='col-span-0 text-left'>
@@ -177,7 +189,7 @@ export function TeamsActionDialog({ currentRow, open, onOpenChange }: Props) {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder='team-name'
+                        placeholder='team-slug'
                         className='col-span-4'
                         {...field}
                       />

@@ -29,8 +29,9 @@ import { getAllCategories } from '@/queries/getCategoryTable'
 import { useQueries,useQueryClient,useMutation } from '@tanstack/react-query';
 import { getAllTeams } from '@/queries/getTeamTable';
 import _ from 'lodash';
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { MUTATION_ADD_GAME } from '@/mutations/addGame'
+import generateSlug from '@/utils/generate-slug'
 
 const formSchema = z
   .object({
@@ -42,7 +43,7 @@ const formSchema = z
     live_link: z.string().url({ message: 'Live link is required and must be a valid URL' }),
     important: z.boolean().default(false),
     date_range: z.boolean().default(false),
-    starting_date: z.date().min(new Date(), { message: 'Starting date is required' }),
+    starting_date: z.date().refine((v) => v.setHours(0, 0, 0, 0) >= new Date().setHours(0, 0, 0, 0), { message: 'Starting date is required' }),
     starting_time: z.string().min(1, { message: 'Starting time is required' }),
     ending_date: z.date().optional().nullable(),
     ending_time: z.string().optional(),
@@ -121,6 +122,45 @@ export function GamesActionDialog({ currentRow, open, onOpenChange }: Props) {
           ending_time: '',
         },
   })
+  const [teamOneLabel, setTeamOneLabel] = useState('');
+  const [teamTwoLabel, setTeamTwoLabel] = useState('');
+  const nameValue = form.watch('name')
+  const teamOneValue = form.watch('team_one')
+  const teamTwoValue = form.watch('team_two')
+
+  useEffect(() => {
+    if (nameValue) {
+      const slug = generateSlug(nameValue, true);
+      form.setValue('slug', slug, { shouldValidate: true });
+  
+      const splittedSlug = slug.split('-')?.map(team => team.toLowerCase().trim());
+      const teamOneSlug = splittedSlug?.[0];
+      const teamTwoSlug = splittedSlug?.[2];
+  
+      const teamOne = teams.find((team: { slug: string }) => team.slug === teamOneSlug);
+      const teamTwo = teams.find((team: { slug: string }) => team.slug === teamTwoSlug);
+  
+      form.setValue('team_one', teamOne?._id || '');
+      form.setValue('team_two', teamTwo?._id || '');
+
+      setTeamOneLabel(teamOne?.name || '');
+      setTeamTwoLabel(teamTwo?.name || '');
+    } else {
+      form.setValue('slug', '');
+      form.setValue('team_one', '');
+      form.setValue('team_two', '');
+      setTeamOneLabel('');
+      setTeamTwoLabel('');
+    }
+  }, [nameValue, form, teams]);  
+
+  useEffect(()=>{
+    if(teamOneValue && teamTwoValue){
+      const teamOne = teams.find((team: { _id: string }) => team._id === teamOneValue).name
+      const teamTwo = teams.find((team: { _id: string }) => team._id === teamTwoValue).name
+      form.setValue('name', `${teamOne} vs ${teamTwo}`)
+    }
+  },[teamOneValue,teamTwoValue])
 
   useEffect(()=>{
     if(_.get(data,'data',false)){
@@ -175,7 +215,7 @@ export function GamesActionDialog({ currentRow, open, onOpenChange }: Props) {
                     <SelectDropdown
                       defaultValue={field.value}
                       onValueChange={field.onChange}
-                      placeholder='Select a team'
+                      placeholder={teamOneLabel || 'Select a team'}
                       className='col-span-4'
                       items={teams?.map(({ name, _id }: { name: string; _id: string }) => ({
                         label: name,
@@ -197,7 +237,7 @@ export function GamesActionDialog({ currentRow, open, onOpenChange }: Props) {
                     <SelectDropdown
                       defaultValue={field.value}
                       onValueChange={field.onChange}
-                      placeholder='Select a team'
+                      placeholder={teamTwoLabel || 'Select a team'}
                       className='col-span-4'
                       items={teams?.map(({ name, _id }: { name: string; _id: string }) => ({
                         label: name,
@@ -252,6 +292,7 @@ export function GamesActionDialog({ currentRow, open, onOpenChange }: Props) {
               <FormField
                 control={form.control}
                 name='slug'
+                disabled
                 render={({ field }) => (
                   <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
                     <FormLabel className='col-span-2 text-right'>
