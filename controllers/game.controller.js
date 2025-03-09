@@ -33,6 +33,17 @@ exports.getGameById = async (req, res) => {
     }
 };
 
+exports.getGamesByCategory = async (req, res) => {
+    try {
+        const games = await Game.find({ category: req.params.categoryId });
+        logger.info(`Fetched games for category with ID ${req.params.categoryId} successfully`);
+        res.status(200).json({ success: true, data: games });
+    } catch (error) {
+        logger.error(`Error fetching games for category with ID ${req.params.categoryId}: `, error);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
 // Create a new game
 exports.createGame = async (req, res) => {
     try {
