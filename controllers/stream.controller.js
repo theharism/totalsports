@@ -29,6 +29,17 @@ exports.getStreamById = async (req, res) => {
     }
 };
 
+exports.getStreamsByGameId = async (req, res) => {
+    try {
+        const streams = await Stream.find({ game: req.params.gameId });
+        logger.info(`Fetched streams for game with ID ${req.params.gameId} successfully`);
+        res.status(200).json({ success: true, data: streams });
+    } catch (error) {
+        logger.error(`Error fetching streams for game with ID ${req.params.gameId}: `, error);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
 // Create a new stream
 exports.createStream = async (req, res) => {
     try {
