@@ -33,13 +33,24 @@ exports.getGameById = async (req, res) => {
     }
 };
 
-exports.getGamesByCategory = async (req, res) => {
+exports.getGamesByCategoryId = async (req, res) => {
     try {
-        const games = await Game.find({ category: req.params.categoryId });
+        const games = await Game.find({ category: req.params.categoryId }).populate('team_one team_two category');
         logger.info(`Fetched games for category with ID ${req.params.categoryId} successfully`);
         res.status(200).json({ success: true, data: games });
     } catch (error) {
         logger.error(`Error fetching games for category with ID ${req.params.categoryId}: `, error);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
+exports.getGamesByTeamId = async (req, res) => {
+    try {
+        const games = await Game.find({ $or: [{ team_one: req.params.teamId }, { team_two: req.params.teamId }] }).populate('team_one team_two category');
+        logger.info(`Fetched games for team with ID ${req.params.teamId} successfully`);
+        res.status(200).json({ success: true, data: games });
+    } catch (error) {
+        logger.error(`Error fetching games for team with ID ${req.params.teamId}: `, error);
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 };

@@ -233,6 +233,27 @@
         }
       }
     },
+    "/api/v1/games/team/{teamId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/v1/streams/": {
       "get": {
         "description": "",
