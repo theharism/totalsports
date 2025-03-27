@@ -130,7 +130,6 @@ export function GamesActionDialog({ currentRow, open, onOpenChange }: Props) {
 
   useEffect(() => {
     if (nameValue) {
-      debugger;
       const slug = generateSlug(nameValue, true);
       form.setValue('slug', slug, { shouldValidate: true });
   
