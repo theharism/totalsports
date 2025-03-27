@@ -14,7 +14,6 @@ const gameSchema = z.object({
   category: populatedFieldSchema,
   name: z.string().min(1, { message: 'Name is required' }),
   slug: z.string().min(1, { message: 'Slug is required' }),
-  live_link: z.string().url({ message: 'Live link is required and must be a valid URL' }),
   important: z.boolean().default(false),
   date_range: z.boolean().default(false),
   starting_date: z.coerce.date(),

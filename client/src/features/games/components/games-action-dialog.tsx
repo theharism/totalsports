@@ -32,6 +32,7 @@ import _ from 'lodash';
 import { useEffect, useState } from 'react'
 import { MUTATION_ADD_GAME } from '@/mutations/addGame'
 import generateSlug from '@/utils/generate-slug'
+import { extractTeamsFromSlug } from '@/utils/extract-teams'
 
 const formSchema = z
   .object({
@@ -40,7 +41,6 @@ const formSchema = z
     category: z.string().min(1, { message: 'Category is required' }),
     name: z.string().min(1, { message: 'Name is required' }),
     slug: z.string().min(1, { message: 'Slug is required' }),
-    live_link: z.string().url({ message: 'Live link is required and must be a valid URL' }),
     important: z.boolean().default(false),
     date_range: z.boolean().default(false),
     starting_date: z.date().refine((v) => v.setHours(0, 0, 0, 0) >= new Date().setHours(0, 0, 0, 0), { message: 'Starting date is required' }),
@@ -130,15 +130,14 @@ export function GamesActionDialog({ currentRow, open, onOpenChange }: Props) {
 
   useEffect(() => {
     if (nameValue) {
+      debugger;
       const slug = generateSlug(nameValue, true);
       form.setValue('slug', slug, { shouldValidate: true });
   
-      const splittedSlug = slug.split('-')?.map(team => team.toLowerCase().trim());
-      const teamOneSlug = splittedSlug?.[0];
-      const teamTwoSlug = splittedSlug?.[2];
+      const { teamOneName, teamTwoName } = extractTeamsFromSlug(slug);
   
-      const teamOne = teams.find((team: { slug: string }) => team.slug === teamOneSlug);
-      const teamTwo = teams.find((team: { slug: string }) => team.slug === teamTwoSlug);
+      const teamOne = teams.find((team: { name: string }) => team.name.toLowerCase().replace(/-/g, ' ').trim() === teamOneName);
+      const teamTwo = teams.find((team: { name: string }) => team.name.toLowerCase().replace(/-/g, ' ').trim() === teamTwoName);
   
       form.setValue('team_one', teamOne?._id || '');
       form.setValue('team_two', teamTwo?._id || '');
@@ -301,25 +300,6 @@ export function GamesActionDialog({ currentRow, open, onOpenChange }: Props) {
                     <FormControl>
                       <Input
                         placeholder='e.g., league-match'
-                        className='col-span-4'
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage className='col-span-4 col-start-3' />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='live_link'
-                render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
-                    <FormLabel className='col-span-2 text-right'>
-                      Live link
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder='e.g., https://example.com/stream'
                         className='col-span-4'
                         {...field}
                       />
