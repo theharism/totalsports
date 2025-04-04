@@ -54,7 +54,13 @@ interface Props {
 export function StreamsActionDialog({ currentRow, open, onOpenChange }: Props) {
   const isEdit = !!currentRow
   const queryClient = useQueryClient();
-	const { mutate: addStream, data, isLoading, error } = useMutation({
+	const { mutate: addStream, data } = useMutation({
+    onError: (error: { message: string; error?: string }) => {
+      toast({
+        title: error.message,
+        description: error?.error,
+      })
+    },
     mutationFn: MUTATION_ADD_STREAM,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['streams'] });

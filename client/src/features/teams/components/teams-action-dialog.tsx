@@ -46,7 +46,13 @@ interface Props {
 
 export function TeamsActionDialog({ currentRow, open, onOpenChange }: Props) {
   const queryClient = useQueryClient();
-	const { mutate: addTeam, data, isLoading, error } = useMutation({
+	const { mutate: addTeam, data } = useMutation({
+    onError: (error: { message: string; error?: string }) => {
+      toast({
+        title: error.message,
+        description: error?.error,
+      })
+    },
     mutationFn: MUTATION_ADD_TEAM,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teams'] });

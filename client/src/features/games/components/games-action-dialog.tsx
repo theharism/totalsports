@@ -67,7 +67,13 @@ interface Props {
 export function GamesActionDialog({ currentRow, open, onOpenChange }: Props) {
   const isEdit = !!currentRow
   const queryClient = useQueryClient();
-	const { mutate: addGame, data, isLoading, error } = useMutation({
+	const { mutate: addGame, data } = useMutation({
+    onError: (error: { message: string; error?: string }) => {
+      toast({
+        title: error.message,
+        description: error?.error,
+      })
+    },
     mutationFn: MUTATION_ADD_GAME,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['games'] });

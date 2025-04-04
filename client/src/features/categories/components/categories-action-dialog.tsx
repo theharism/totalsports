@@ -46,7 +46,13 @@ interface Props {
 
 export function CategoriesActionDialog({ currentRow, open, onOpenChange }: Props) {
   const queryClient = useQueryClient();
-	const { mutate: addCategory, data, isLoading, error } = useMutation({
+	const { mutate: addCategory, data } = useMutation({
+    onError: (error: { message: string; error?: string }) => {
+      toast({
+        title: error.message,
+        description: error?.error,
+      })
+    },
     mutationFn: MUTATION_ADD_CATEGORY,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
