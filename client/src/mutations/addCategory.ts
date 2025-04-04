@@ -15,7 +15,6 @@ export const MUTATION_ADD_CATEGORY = async (category: { name: string, logo: File
 
     return response.data
   } catch (error) {
-    console.log(axios.isAxiosError(error))
     if (axios.isAxiosError(error)) {
       throw error.response?.data
     }
