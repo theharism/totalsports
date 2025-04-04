@@ -57,6 +57,7 @@ export function StreamsActionDialog({ currentRow, open, onOpenChange }: Props) {
 	const { mutate: addStream, data } = useMutation({
     onError: (error: { message: string; error?: string }) => {
       toast({
+        variant: 'destructive',
         title: error.message,
         description: error?.error,
       })

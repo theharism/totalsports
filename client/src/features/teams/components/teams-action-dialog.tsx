@@ -49,6 +49,7 @@ export function TeamsActionDialog({ currentRow, open, onOpenChange }: Props) {
 	const { mutate: addTeam, data } = useMutation({
     onError: (error: { message: string; error?: string }) => {
       toast({
+        variant: 'destructive',
         title: error.message,
         description: error?.error,
       })
@@ -98,6 +99,12 @@ export function TeamsActionDialog({ currentRow, open, onOpenChange }: Props) {
   },[data])
 
   const onSubmit = (values: TeamForm) => {
+    if(!values.logo) {
+      form.setError('logo', {
+        message: 'Logo is required'
+      })
+      return;
+    }
     const firstFile = values.logo[0];
     addTeam({ ...values, logo: firstFile });
   }  

@@ -70,6 +70,7 @@ export function GamesActionDialog({ currentRow, open, onOpenChange }: Props) {
 	const { mutate: addGame, data } = useMutation({
     onError: (error: { message: string; error?: string }) => {
       toast({
+        variant: 'destructive',
         title: error.message,
         description: error?.error,
       })
