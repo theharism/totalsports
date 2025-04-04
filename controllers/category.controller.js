@@ -32,7 +32,13 @@ exports.getCategoryById = async (req, res) => {
 // Create a new category
 exports.createCategory = async (req, res) => {
     try {
-        const newCategory = await Category.create(req.body);
+
+        const { name, slug } = req.body;
+        const newCategory = await Category.create({
+            name,
+            slug,
+            logo: req.file ? req.file.destination + req.file.filename : null,
+        });
         logger.info('Created new category successfully');
         res.status(201).json({ success: true, data: newCategory });
     } catch (error) {

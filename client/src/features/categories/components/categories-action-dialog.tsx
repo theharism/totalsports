@@ -33,7 +33,7 @@ import generateSlug from '@/utils/generate-slug'
 const formSchema = z
   .object({
     name: z.string().min(1, { message: 'Name is required.' }),
-    link: z.string().url({ message: 'Link is required and must be a valid URL.' }),
+    logo: z.any(),
     slug: z.string().min(1, { message: 'Slug is required.' }),
   })
 type CategoryForm = z.infer<typeof formSchema>
@@ -61,7 +61,7 @@ export function CategoriesActionDialog({ currentRow, open, onOpenChange }: Props
         }
       : {
           name: '',
-          link: '',
+          logo:undefined,
           slug: '',
         },
   })
@@ -92,7 +92,8 @@ export function CategoriesActionDialog({ currentRow, open, onOpenChange }: Props
   },[data])
 
   const onSubmit = (values: CategoryForm) => {
-    addCategory(values)    
+    const firstFile = values.logo[0];
+    addCategory({ ...values, logo: firstFile });
   }
 
   return (
@@ -140,22 +141,40 @@ export function CategoriesActionDialog({ currentRow, open, onOpenChange }: Props
               />
               <FormField
                 control={form.control}
-                name='link'
-                render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0'>
-                    <FormLabel className='col-span-0 text-left'>
-                      Link
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder='https://example.com'
-                        className='col-span-4'
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage className='col-span-4 col-start-2' />
-                  </FormItem>
-                )}
+                name="logo"
+                render={({ field }) => {
+                  const imagePreview = field.value
+                    ? URL.createObjectURL(field.value[0])
+                    : isEdit
+                    ? currentRow?.logo
+                    : undefined;
+
+                  return (
+                    <FormItem className="grid grid-cols-6 items-center gap-x-4 gap-y-1 space-y-0">
+                      <FormLabel className="col-span-0 text-left">Logo</FormLabel>
+                      <FormControl>
+                        <div className="col-span-4 flex flex-col items-center">
+                          {imagePreview && (
+                            <img
+                              src={imagePreview}
+                              alt="logo preview"
+                              className="h-20 w-20 rounded-full"
+                            />
+                          )}
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) =>
+                              field.onChange(e.target.files ? Array.from(e.target.files) : [])
+                            }
+                            className="mt-2"
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage className="col-span-4 col-start-2" />
+                    </FormItem>
+                  );
+                }}
               />
               <FormField
                 control={form.control}

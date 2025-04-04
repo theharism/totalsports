@@ -5,7 +5,7 @@ export const categories = Array.from({ length: 20 }, () => {
   const slug = name.toLowerCase().replace(/\s+/g, '-');
   return {
     name,
-    link: faker.internet.url(),
+    logo: faker.image.url(),
     slug,
     createdAt: faker.date.past(),
     updatedAt: faker.date.recent(),

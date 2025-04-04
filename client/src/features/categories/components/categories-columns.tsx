@@ -64,13 +64,13 @@ export const columns: ColumnDef<Category>[] = [
     ),
   },
   {
-    id: 'link',
+    id: 'logo',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Link' />
+      <DataTableColumnHeader column={column} title='Logo' />
     ),
     cell: ({ row }) => {
-      const { link } = row.original
-      return <LongText className='max-w-36'>{link}</LongText>
+      const { logo } = row.original
+      return <img className='h-20 w-20 rounded-full' src={logo} alt='logo' />
     },
     meta: { className: 'w-36' },
   },
