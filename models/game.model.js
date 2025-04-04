@@ -19,16 +19,6 @@ const gameSchema = new mongoose.Schema(
       ref: "Category",
       required: [true, "Category is required"],
     },
-    live_link: {
-      type: String,
-      required: [true, "Live link is required"],
-      validate: {
-        validator: function (v) {
-          return /^https?:\/\/.+/.test(v); // Simple URL validation
-        },
-        message: (props) => `${props.value} is not a valid URL!`,
-      },
-    },
     important: { type: Boolean, default: false },
     link_highlight: { type: String, default: "" },
     date_range: { type: Boolean, default: false },
