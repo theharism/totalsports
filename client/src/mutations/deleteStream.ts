@@ -6,7 +6,7 @@ export const MUTATION_DELETE_STREAM = async (id: string) => {
     return response.data
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      return error.response?.data
+      throw error.response?.data
     }
     throw error
   }

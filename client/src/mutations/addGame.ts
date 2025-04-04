@@ -22,7 +22,7 @@ export const MUTATION_ADD_GAME = async (game: Game) => {
     return response.data
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      return error.response?.data
+      throw error.response?.data
     }
     throw error
   }

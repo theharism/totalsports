@@ -18,7 +18,7 @@ export const MUTATION_ADD_STREAM = async (stream: Stream) => {
     return response.data
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      return error.response?.data
+      throw error.response?.data
     }
     throw error
   }

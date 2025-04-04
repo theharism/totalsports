@@ -6,7 +6,7 @@ export const MUTATION_UPDATE_CATEGORY = async (id: string, category: { name: str
     return response.data
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      return error.response?.data
+      throw error.response?.data
     }
     throw error
   }

@@ -12,11 +12,12 @@ export const MUTATION_ADD_CATEGORY = async (category: { name: string, logo: File
         'Content-Type': 'multipart/form-data',
       },
     })
-    
+
     return response.data
   } catch (error) {
+    console.log(axios.isAxiosError(error))
     if (axios.isAxiosError(error)) {
-      return error.response?.data
+      throw error.response?.data
     }
     throw error
   }

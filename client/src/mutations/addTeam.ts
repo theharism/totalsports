@@ -16,7 +16,7 @@ export const MUTATION_ADD_TEAM = async (team: { name: string; logo: File; slug: 
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      return error.response?.data;
+      throw error.response?.data;
     }
     throw error;
   }
